@@ -15,7 +15,7 @@ namespace DataStructures
         MaxHeap,
         MinHeap
     }
-    class BinaryHeap<T> where T : IComparable<T>
+    public class BinaryHeap<T> where T : IComparable<T>
     {
         private HeapType heaptype;
         private T[] elements;
@@ -131,6 +131,12 @@ namespace DataStructures
                 throw new InvalidOperationException("Heap is empty");
             return elements[0];
         }
+        public T[] ToArray()
+        {
+            T[] result = new T[count]; 
+            Array.Copy(elements, result, count); 
+            return result; 
+        }
         //✅ Essential Methods:
         //Peek()
         //Returns the root element without removing it(fast access to the highest/lowest priority item).
@@ -146,8 +152,6 @@ namespace DataStructures
 
         //IsEmpty()
         //Quick check for emptiness.
-
-        //ToArray() – exports the current heap elements as an array.
 
         //BuildHeap(T[] array) – builds a heap from an unsorted array.
     }
