@@ -1,38 +1,74 @@
-using Newtonsoft.Json.Linq;
-using System.Drawing;
-using System.Globalization;
-using System.Reflection.Metadata;
-using System.Xml.Linq;
-using System;
+
 using DataStructures;
-using System.Diagnostics.CodeAnalysis;
+
 
 namespace DataStructures_Tests
 {
+    /// <summary>
+    /// Only Max heap is implemented.
+    /// </summary>
     public class BinaryHeap_Test
     {
         private readonly BinaryHeap<int> heap;
         public BinaryHeap_Test()
         {
-            heap = new BinaryHeap<int>(HeapType.MaxHeap);
+            //heap = new BinaryHeap<int>(HeapType.MaxHeap);
+            heap = new BinaryHeap<int>();
         }
         [Fact]
         public void Count_Test()
         {
-            //Ensure it increases with inserts and decreases with extracts.
-            throw new NotImplementedException("Not implimented");
-        }
-        [Fact]
-        public void IsEmpty_Test()
-        {
-            //Make sure the heap resets properly.
-            throw new NotImplementedException("Not implimented");
+            Assert.Equal(0, heap.Count);
+            heap.Insert(45);
+            heap.Insert(46);
+            Assert.Equal(2, heap.Count);
+            heap.Extract();
+            Assert.Equal(1, heap.Count);
         }
         [Fact]
         public void Clear_Test()
         {
             //Make sure the heap resets properly.
-            throw new NotImplementedException("Not implimented");
+            heap.Insert(10);
+            heap.Insert(20);
+            heap.Insert(30);
+            heap.Clear();
+            Assert.True(heap.Count == 0);
+            Assert.Throws<InvalidOperationException>(() => heap.Peek());
+            Assert.False(heap.Contains(10));
+            Assert.False(heap.Contains(20));
+            Assert.False(heap.Contains(30));
+        }
+        [Fact]
+        public void IsEmpty_Test()
+        {
+            Assert.True(heap.IsEmpty(), "Heap should be empty initially.");
+
+            heap.Insert(10);
+            heap.Insert(20);
+            heap.Insert(30);
+            // After inserting elements, the heap should not be empty
+            Assert.False(heap.IsEmpty(), "Heap should not be empty after inserting elements.");
+
+            heap.Extract();
+            heap.Extract();
+            heap.Extract();
+
+            // After extracting all elements, the heap should be empty again
+            Assert.True(heap.IsEmpty(), "Heap should be empty after extracting all elements.");
+        }
+        [Fact]
+        public void Contains_Test()
+        {
+            //Test empty
+            Assert.False(heap.Contains(5));
+
+            heap.Insert(10);
+            heap.Insert(20);
+            heap.Insert(30);
+
+            Assert.True(heap.Contains(20));  // Should be found
+            Assert.False(heap.Contains(99)); // Should not be found
         }
         [Theory]
         [InlineData(8)]
@@ -63,12 +99,13 @@ namespace DataStructures_Tests
         [Fact]
         public void Insert_Test()
         {
-            //? Insert
-            //Inserting into an empty heap.
-            //Inserting multiple elements and checking heap structure via Peek().
             heap.Insert(45);
             Assert.Equal(1, heap.Count);
             Assert.Equal(45, heap.Peek());
+            heap.Insert(46);
+            heap.Insert(47);
+            Assert.Equal(47, heap.Peek());
+            Assert.Equal(3, heap.Count);
         }
         [Fact]
         public void ExtractEmpty_Test()
@@ -78,7 +115,16 @@ namespace DataStructures_Tests
         [Fact]
         public void ToArray_Test()
         {
-            throw new NotImplementedException("Not implimented");
+            heap.Insert(30);
+            heap.Insert(10);
+            heap.Insert(20);
+
+            int[] array = heap.ToArray();
+
+            Assert.Equal(3, array.Length); 
+            Assert.Contains(10, array);
+            Assert.Contains(20, array);
+            Assert.Contains(30, array);
         }
         [Fact]
         public void Extract_Test()
@@ -91,15 +137,22 @@ namespace DataStructures_Tests
             heap.Insert(15);
             heap.Insert(20);
             heap.Insert(5);
+            heap.Insert(10);
 
             extracted = heap.Extract();
 
             Assert.Equal(20, extracted); 
-            Assert.Equal(2, heap.Count); 
+            Assert.Equal(3, heap.Count); 
             Assert.DoesNotContain(20, heap.ToArray());
 
-            //Extract repeatedly and verify order (e.g.always decreasing for max-heap).
-            throw new NotImplementedException("Not implimented");
+            extracted = heap.Extract();    // 15 should be the largest
+            Assert.Equal(15, extracted);
+
+            extracted = heap.Extract();    
+            Assert.Equal(10, extracted);
+
+            extracted = heap.Extract();
+            Assert.Equal(5, extracted);
 
         }
         [Fact]
@@ -110,9 +163,7 @@ namespace DataStructures_Tests
         [Fact]
         public void Peak_Test()
         {
-            //Check that it returns the correct root element.
-            //Peek without removing the item.
-
+            heap.Insert(45);
             Assert.Equal(45, heap.Peek());
             Assert.Equal(1, heap.Count);
         }
@@ -120,23 +171,68 @@ namespace DataStructures_Tests
         [Fact]
         public void HeapifyUp_Test()
         {
-            //Indirectly tested via insert and extract.
-            //Check that the heap property is preserved after each operation.
-            throw new NotImplementedException("Not implimented");
+
+            heap.Insert(10);
+            Assert.Equal(10, heap.Peek());
+            heap.Insert(20);
+            Assert.Equal(20, heap.Peek());
+            heap.Insert(15);
+
+            Assert.Equal(20, heap.Peek());
         }
         [Fact]
         public void HeapifyDown_Test()
         {
-            //Indirectly tested via insert and extract.
-            //Check that the heap property is preserved after each operation.
-            throw new NotImplementedException("Not implimented");
-        }
+            heap.Insert(50);
+            heap.Insert(40);
+            heap.Insert(30);
+            heap.Insert(20);
+            heap.Insert(10);
 
+            heap.Extract(); // removes 50
+
+            Assert.Equal(40, heap.Peek());
+            heap.Extract(); // removes 40
+            Assert.Equal(30, heap.Peek());
+        }
+        [Fact]
+        public void BuildHeap_Test()
+        {
+            int[] unsorted = { 15, 23, 57, 98, 25, 3, 0, 10, 23 };
+            int[] expected = { 98, 25, 57, 23, 15, 3, 0, 10, 23 };
+            heap.BuildHeap(unsorted);
+            int[] result = heap.ToArray();
+            Assert.Equal(expected.Length, result.Length);
+            for (int i = 0; i < expected.Length; i++)
+            {
+                Assert.Equal(expected[i], result[i]);
+            }
+
+        }
         [Fact]
         public void Stress_Test()
         {
-            //Insert a large number of random values and then extract all — verify the final output is sorted (descending for max-heap, ascending for min-heap).
-            throw new NotImplementedException("Not implimented");
+            var rand = new Random();
+            int numElements = 100_000;
+
+            // Insert a large number of random values
+            for (int i = 0; i < numElements; i++)
+            {
+                heap.Insert(rand.Next());
+            }
+
+            // Extract elements and ensure each one is less than or equal to the previous
+            int previous = heap.Extract();
+            int current;
+            for (int i = 1; i < numElements; i++)
+            {
+                current = heap.Extract();
+                Assert.True(current <= previous, $"Heap property violated at index {i}");
+                previous = current;
+            }
+
+            Assert.Equal(0, heap.Count);
         }
+
     }
 }
