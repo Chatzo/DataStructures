@@ -7,13 +7,13 @@ namespace DataStructures_Tests
     /// <summary>
     /// Only Max heap is implemented.
     /// </summary>
-    public class BinaryHeap_Test
+    public class BinaryMaxHeap_Test
     {
         private readonly BinaryHeap<int> heap;
-        public BinaryHeap_Test()
+        public BinaryMaxHeap_Test()
         {
-            //heap = new BinaryHeap<int>(HeapType.MaxHeap);
-            heap = new BinaryHeap<int>();
+            heap = new BinaryHeap<int>(HeapType.MaxHeap);
+
         }
         [Fact]
         public void Count_Test()
@@ -83,10 +83,10 @@ namespace DataStructures_Tests
         [InlineData(4096)]
         public void Resize_Test(int size)
         {
-            
+
             Random rand = new Random();
-            int[] testArray = new int [size]; 
-            for(int i = 0; i < size; i++)
+            int[] testArray = new int[size];
+            for (int i = 0; i < size; i++)
             {
                 int testNum = rand.Next();
                 testArray[i] = testNum;
@@ -121,7 +121,7 @@ namespace DataStructures_Tests
 
             int[] array = heap.ToArray();
 
-            Assert.Equal(3, array.Length); 
+            Assert.Equal(3, array.Length);
             Assert.Contains(10, array);
             Assert.Contains(20, array);
             Assert.Contains(30, array);
@@ -129,7 +129,7 @@ namespace DataStructures_Tests
         [Fact]
         public void Extract_Test()
         {
-            
+
             heap.Insert(10);
             int extracted = heap.Extract();
             Assert.Equal(10, extracted);
@@ -141,14 +141,14 @@ namespace DataStructures_Tests
 
             extracted = heap.Extract();
 
-            Assert.Equal(20, extracted); 
-            Assert.Equal(3, heap.Count); 
+            Assert.Equal(20, extracted);
+            Assert.Equal(3, heap.Count);
             Assert.DoesNotContain(20, heap.ToArray());
 
             extracted = heap.Extract();    // 15 should be the largest
             Assert.Equal(15, extracted);
 
-            extracted = heap.Extract();    
+            extracted = heap.Extract();
             Assert.Equal(10, extracted);
 
             extracted = heap.Extract();
@@ -161,7 +161,7 @@ namespace DataStructures_Tests
             Assert.Throws<InvalidOperationException>(() => heap.Peek());
         }
         [Fact]
-        public void Peak_Test()
+        public void Peek_Test()
         {
             heap.Insert(45);
             Assert.Equal(45, heap.Peek());
@@ -198,16 +198,22 @@ namespace DataStructures_Tests
         [Fact]
         public void BuildHeap_Test()
         {
-            int[] unsorted = { 15, 23, 57, 98, 25, 3, 0, 10, 23 };
-            int[] expected = { 98, 25, 57, 23, 15, 3, 0, 10, 23 };
-            heap.BuildHeap(unsorted);
-            int[] result = heap.ToArray();
-            Assert.Equal(expected.Length, result.Length);
-            for (int i = 0; i < expected.Length; i++)
-            {
-                Assert.Equal(expected[i], result[i]);
-            }
+            int[] input = { 15, 23, 57, 98, 25, 3, 0, 10, 23 };
+            heap.BuildHeap(input);
 
+            var result = heap.ToArray();
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                int left = 2 * i + 1; //index of left child
+                int right = 2 * i + 2; //index of right child
+
+                if (left < result.Length)
+                    Assert.True(result[i] >= result[left], $"Heap property violated at index {i} (parent: {result[i]}, left: {result[left]})");
+
+                if (right < result.Length)
+                    Assert.True(result[i] >= result[right], $"Heap property violated at index {i} (parent: {result[i]}, right: {result[right]})");
+            }
         }
         [Fact]
         public void Stress_Test()

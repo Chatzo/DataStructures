@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+﻿
 
 namespace DataStructures
 {
@@ -23,8 +15,6 @@ namespace DataStructures
         public int Count { get { return count; } }
         public BinaryHeap(HeapType type = HeapType.MaxHeap) //Maxheap is used as default if no other is entered
         {
-            if (type == HeapType.MinHeap)
-                throw new NotImplementedException("MinHeap is not implemented");
             heaptype = type;
             elements = new T[16];
             count = 0;
@@ -66,7 +56,7 @@ namespace DataStructures
             elements = newArray;
         }
         /// <summary>
-        /// Inserts the value and sort it into the right place in the tree.
+        /// Inserts the value and positions it correctly to maintain the heap property.
         /// </summary>
         /// <param name="value"></param>
         public void Insert(T value)
@@ -79,7 +69,7 @@ namespace DataStructures
             HeapifyUp(count - 1);
         }
         /// <summary>
-        /// It gets the highest value from the heap and removes it after returning it.
+        /// Returns the root element (highest in MaxHeap and lowest in MinHeap) and removes it after returning it.
         /// it rearrange the heap afterwards if needed.
         /// </summary>
         /// <returns>Returns highest stored value, throws exception if empty</returns>
@@ -109,6 +99,11 @@ namespace DataStructures
                 Swap(parentIndex, index);
                 HeapifyUp(parentIndex);
             }
+            else if ((heaptype == HeapType.MinHeap) && (elements[index].CompareTo(elements[parentIndex]) < 0))
+                {
+                    Swap(parentIndex, index);
+                    HeapifyUp(parentIndex);
+                }
         }
       
         private int GetParentIndex(int index)
@@ -135,6 +130,10 @@ namespace DataStructures
             {
                 Max_HeapifyDownRecursive(index);
             }
+            else if (heaptype == HeapType.MinHeap)
+            {
+                Min_HeapifyDownRecursive(index);
+            }
         }
         private void Max_HeapifyDownRecursive(int index)
         {
@@ -160,8 +159,32 @@ namespace DataStructures
                 Max_HeapifyDownRecursive(largest);
             }
         }
+        private void Min_HeapifyDownRecursive(int index)
+        {
+            int leftChild = GetLeftChildIndex(index);
+            int rightChild = GetRightChildIndex(index);
+            int smallest = index;
+
+            //check left child
+            if (leftChild < count && elements[leftChild].CompareTo(elements[smallest]) < 0)
+            {
+                smallest = leftChild;
+            }
+            //check right child, at this point "smallest" is either "index" or "leftChild"
+            if (rightChild < count && elements[rightChild].CompareTo(elements[smallest]) < 0)
+            {
+                smallest = rightChild;
+            }
+
+
+            if (smallest != index) // If a smaller child is found, swap and recurse
+            {
+                Swap(index, smallest);
+                Min_HeapifyDownRecursive(smallest);
+            }
+        }
         /// <summary>
-        /// Returns element with highest value without removing it.
+        /// Returns the root element (highest in MaxHeap and lowest in MinHeap) without deleting it.
         /// </summary>
         /// <returns>first element in the BinaryHeap </returns>
         public T Peek()
@@ -180,7 +203,7 @@ namespace DataStructures
             return result; 
         }
         /// <summary>
-        /// Builds a heap from an unsorted array.
+        /// Clears the current heap and builds a new heap from an unsorted array.
         /// </summary>
         /// <param name="array"></param>
         public void BuildHeap(T[] array)
